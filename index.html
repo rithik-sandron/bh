@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Subtle Dark Pastel Rainbow Grain Frame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      .contain {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      h1 {
+        font-size: 3rem;
+        font-family: sans-serif;
+        text-align: center;
+      }
+      .heart {
+        display: inline-block;
+        animation: pump 0.8s infinite;
+        /* Optional: smooth out the scaling */
+        transition: transform 0.1s;
+      }
+      @keyframes pump {
+        0% {
+          transform: scale(1);
+        }
+        20% {
+          transform: scale(1.2);
+        }
+        40% {
+          transform: scale(1);
+        }
+        60% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      body {
+        background: #232323;
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .frame-container {
+        perspective: 1600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .frame-3d {
+        position: relative;
+        width: 360px;
+        height: 500px;
+        background: #222;
+        border-radius: 14px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45),
+          0 2px 8px rgba(0, 0, 0, 0.09);
+        padding: 10px;
+        box-sizing: border-box;
+        transition: box-shadow 0.3s;
+        will-change: transform;
+        cursor: pointer;
+        overflow: visible;
+      }
+      /* Subtle pastel rainbow border */
+      .frame-3d::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border: 10px solid transparent;
+        border-radius: 14px;
+        pointer-events: none;
+        z-index: 2;
+        background: linear-gradient(
+          120deg,
+          #d6bddd 0%,
+          #b7b4db 20%,
+          #abcada 40%,
+          #b8d8bc 60%,
+          #d8d8ba 80%,
+          #ddbdbd 100%
+        );
+        background-clip: border-box;
+        -webkit-mask: linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0) border-box;
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0.42;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
+          0 0.5px 2px rgba(255, 255, 255, 0.1) inset;
+        transition: opacity 0.5s, border-color 0.6s;
+      }
+
+      .frame-3d img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 7px;
+        background: #111;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 1.5px 8px rgba(0, 0, 0, 0.18) inset;
+        /* No filter here or on hover */
+        transition: none;
+      }
+      /* Subtle dark pastel rainbow grainy overlay over image on hover */
+      .rainbow-grain {
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3;
+        border-radius: 7px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        mix-blend-mode: multiply;
+      }
+
+      .rainbow-grain::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 7px;
+        opacity: 0.23;
+        pointer-events: none;
+        z-index: 4;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23noise)" opacity="0.8"/></svg>');
+        background-size: 120px 120px;
+        mix-blend-mode: soft-light;
+      }
+      /* No filter on image hover */
+      .frame-3d:hover img,
+      .frame-3d:focus img {
+        /* No filter or effect */
+        filter: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="contain">
+      <div class="frame-container">
+        <div class="frame-3d" id="frame3d">
+          <img src="./Perplexify Me.png" alt="Art in 3D Frame" />
+          <div class="rainbow-grain"></div>
+        </div>
+      </div>
+      <script>
+        // Subtle and smooth 3D Parallax Effect
+        const frame = document.getElementById("frame3d");
+        const maxTilt = 12; // subtle and classy
+        let targetX = 0,
+          targetY = 0;
+        let currentX = 0,
+          currentY = 0;
+        let hovering = false;
+
+        frame.addEventListener("mousemove", (e) => {
+          const rect = frame.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          // range: -1 to 1
+          const percentX = (x / rect.width - 0.5) * 2;
+          const percentY = (y / rect.height - 0.5) * 2;
+          targetX = -percentX * maxTilt;
+          targetY = percentY * maxTilt;
+          hovering = true;
+        });
+        frame.addEventListener("mouseleave", () => {
+          targetX = 0;
+          targetY = 0;
+          hovering = false;
+        });
+
+        function animate() {
+          currentX += (targetX - currentX) * 0.1;
+          currentY += (targetY - currentY) * 0.1;
+          frame.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg) scale(${
+            hovering ? 1.025 : 1
+          })`;
+          requestAnimationFrame(animate);
+        }
+        animate();
+      </script>
+      <h1>
+        <span class="heart">❤️</span>
+      </h1>
+    </div>
+  </body>
+</html>
